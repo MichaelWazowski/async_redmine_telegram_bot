@@ -1,7 +1,15 @@
 class CMLDepartment:
-    def __init__(self):
-        self.name: str
-        self._groups = None
+    @classmethod
+    def create_empty(cls, name):
+        return cls(name, groups=None)
+
+    @classmethod
+    def create_with_groups(cls, name, groups):
+        return cls(name, groups)
+
+    def __init__(self, name, groups):
+        self.name = name
+        self._groups = groups
 
     @property
     def name(self):
@@ -27,3 +35,5 @@ class CMLDepartment:
             self._groups = []
         self._groups.append(value)
 
+    def __repr__(self):
+        return f"{self.name} (groups: {self.groups!r})"
