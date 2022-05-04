@@ -25,13 +25,13 @@ class CMLDepartment:
     def groups(self):
         return self._groups
 
-    def add_groups(self, value):
+    def add_groups(self, values):
         if self._groups is None:
             self._groups = []
-        for item in value:
-            self._groups.append(item)
+        for value in values:
+            self._groups.append(value)
 
-    def delete_groups(self, values):
+    def delete_groups(self, *values):
         for value in values:
             removal_index = [index for index, name in enumerate(self._groups) if name == value]
             for index in reversed(removal_index):

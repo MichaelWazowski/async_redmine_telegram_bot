@@ -1,8 +1,16 @@
 class RMGroup:
-    def __init__(self):
-        self.name: str
-        self.id: int
-        self._users = None
+    @classmethod
+    def create_empty(cls, name, rm_id):
+        return cls(name, rm_id, users=None)
+
+    @classmethod
+    def create_with_users(cls, name, rm_id, users):
+        return cls(name, rm_id, users)
+
+    def __init__(self, name, rm_id, users):
+        self.name = name
+        self.rm_id = rm_id
+        self._users = users
 
     @property
     def name(self):
@@ -26,15 +34,20 @@ class RMGroup:
     def _id_setter(self, value):
         self._id = value
 
-    @property
     def users(self):
         return self._users
 
-    @users.setter
-    def users(self, value):
-        self._add_user(value)
-
-    def _add_user(self, value):
+    def add_users(self, values):
         if self._users is None:
             self._users = []
-        self._users.append(value)
+        for value in values:
+            self._users.append(value)
+
+    def delete_users(self, *values):
+        for value in values:
+            removal_index = [index for index, name in enumerate(self._users) if name == value]
+            for index in reversed(removal_index):
+                del self._users[index]
+
+    def __repr__(self):
+        return f"{self.name} (users: {self._users})"
