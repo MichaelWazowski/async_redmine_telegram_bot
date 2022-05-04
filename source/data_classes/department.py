@@ -22,6 +22,7 @@ class CMLDepartment:
     def _name_setter(self, value):
         self._name = value
 
+    @property
     def groups(self):
         return self._groups
 

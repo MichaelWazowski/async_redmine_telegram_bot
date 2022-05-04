@@ -34,6 +34,7 @@ class RMGroup:
     def _id_setter(self, value):
         self._id = value
 
+    @property
     def users(self):
         return self._users
 

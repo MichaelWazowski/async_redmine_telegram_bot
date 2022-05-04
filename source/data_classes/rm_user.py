@@ -1,9 +1,13 @@
 class RMUser:
-    def __init__(self):
-        self.name: str
-        self.id: int
-        self.hours: int
-        self.comments: int
+    @classmethod
+    def create(cls, name, id):
+        return cls(name, id, hours=0, comments=0)
+
+    def __init__(self, name, id, hours, comments):
+        self.name = name
+        self.id = id
+        self.hours = hours
+        self.comments = comments
 
     @property
     def name(self):
@@ -48,3 +52,6 @@ class RMUser:
 
     def _comments_setter(self, value):
         self._comments = value
+
+    def __repr__(self):
+        return f"{self._name} (id: {self._id}, hours: {self._hours}, comments: {self._comments})"
