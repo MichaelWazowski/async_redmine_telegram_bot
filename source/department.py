@@ -22,18 +22,20 @@ class CMLDepartment:
     def _name_setter(self, value):
         self._name = value
 
-    @property
     def groups(self):
         return self._groups
 
-    @groups.setter
-    def groups(self, value):
-        self._add_group(value)
-
-    def _add_group(self, value):
+    def add_groups(self, value):
         if self._groups is None:
             self._groups = []
-        self._groups.append(value)
+        for item in value:
+            self._groups.append(item)
+
+    def delete_groups(self, values):
+        for value in values:
+            removal_index = [index for index, name in enumerate(self._groups) if name == value]
+            for index in reversed(removal_index):
+                del self._groups[index]
 
     def __repr__(self):
-        return f"{self.name} (groups: {self.groups!r})"
+        return f"{self.name} (groups: {self._groups})"
