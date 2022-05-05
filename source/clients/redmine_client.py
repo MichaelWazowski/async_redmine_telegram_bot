@@ -1,4 +1,4 @@
-from source.core.http_client import HTTPClient
+from source.clients.http_client import HTTPClient
 from source.utils.request_handler import RequestErrorHandler
 
 
