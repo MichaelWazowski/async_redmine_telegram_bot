@@ -47,9 +47,13 @@ class RMUser:
     def comments(self, value):
         self._comments = value
 
-    def set_time_sheets(self, hours, comments):
-        self.hours = hours
-        self.comments = comments
+    def set_time_sheets(self, data):
+        if (type(data) is dict) and ("hours" and "comments" in data):
+            self.hours = data["hours"]
+            self.comments = data["comments"]
+        else:
+            self.hours = data
+            self.comments = data
 
     def _short_name(self):
         surname, first_name, second_name = self._name.split(" ")
@@ -68,4 +72,4 @@ class RMUser:
             num_decimal_places = int(suffix)
             component_format_spec = f".{num_decimal_places}f"
         hours = format(abs(self.hours), component_format_spec)
-        return f"{self._short_name()} часы: {hours}, коментарии: {self._comments} \n"
+        return f"{self._short_name()} часы: {hours}, коментарии: {self.comments} \n"
