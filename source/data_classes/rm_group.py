@@ -1,15 +1,15 @@
 class RMGroup:
     @classmethod
-    def create_empty(cls, name, rm_id):
-        return cls(name, rm_id, users=None)
+    def create_empty(cls, id, name):
+        return cls(id, name, users=None)
 
     @classmethod
-    def create_with_users(cls, name, rm_id, users):
-        return cls(name, rm_id, users)
+    def create_with_users(cls, id, name, users):
+        return cls(id, name, users)
 
-    def __init__(self, name, rm_id, users):
+    def __init__(self, id, name, users):
+        self.id = id
         self.name = name
-        self.rm_id = rm_id
         self._users = users
 
     @property
@@ -38,7 +38,7 @@ class RMGroup:
     def users(self):
         return self._users
 
-    def add_users(self, values):
+    def add_users(self, *values):
         if self._users is None:
             self._users = []
         for value in values:
