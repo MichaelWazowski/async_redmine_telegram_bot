@@ -37,7 +37,7 @@ class RequestErrorHandler(AbstractHandler):
         except ClientConnectorError as c_c_e:
             return str(c_c_e)
         except ClientResponseError as c_r_e:
-            return str(c_r_e)
+            return f"Resource { c_r_e.message.lower()}."
         else:
             return super().validate(response)
 
