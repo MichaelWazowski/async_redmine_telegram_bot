@@ -52,3 +52,7 @@ class RMGroup:
 
     def __repr__(self):
         return f"{self.name} (users: {self._users})"
+
+    def __str__(self):
+        return f"{self.name}: \n"
+
