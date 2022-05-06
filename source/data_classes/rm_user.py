@@ -1,11 +1,11 @@
 class RMUser:
     @classmethod
-    def create(cls, name, id):
-        return cls(name, id, hours=0, comments=0)
+    def create(cls, id, name):
+        return cls(id, name, hours=None, comments=None)
 
-    def __init__(self, name, id, hours, comments):
-        self.name = name
+    def __init__(self, id, name, hours, comments):
         self.id = id
+        self.name = name
         self.hours = hours
         self.comments = comments
 
@@ -37,9 +37,6 @@ class RMUser:
 
     @hours.setter
     def hours(self, value):
-        self._hours_setter(value)
-
-    def _hours_setter(self, value):
         self._hours = value
 
     @property
@@ -48,10 +45,11 @@ class RMUser:
 
     @comments.setter
     def comments(self, value):
-        self._comments_setter(value)
-
-    def _comments_setter(self, value):
         self._comments = value
 
+    def set_time_sheets(self, hours, comments):
+        self.hours = hours
+        self.comments = comments
+
     def __repr__(self):
-        return f"{self._name} (id: {self._id}, hours: {self._hours}, comments: {self._comments})"
+        return f"\n {self._name} (id: {self._id}, hours: {self._hours}, comments: {self._comments})"
