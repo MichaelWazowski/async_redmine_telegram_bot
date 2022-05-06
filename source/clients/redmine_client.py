@@ -25,7 +25,7 @@ class RedmineClient:
         query = self._get_redmine_user_request(user_id=user_id, from_date=start_date, to_date=end_date)
         return await self.request_error_handler.validate(lambda: self.new_session_request(query))
 
-    async def get_redmine_group_users_info(self, group, start_date, end_date=None):
+    async def get_redmine_group_users_info(self, group, start_date, end_date):
         group_with_time_sheets = group
         for user in group_with_time_sheets.users:
             data = await self.get_redmine_user_info(user.id, start_date, end_date)
