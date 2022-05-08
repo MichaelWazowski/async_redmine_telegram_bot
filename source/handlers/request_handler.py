@@ -53,7 +53,7 @@ class GroupDataHandler(AbstractHandler):
         return group
 
     def validate(self, request: Any):
-        if type(request) == dict:
+        if (type(request) == dict) and ("group" in request):
             return self.create_group(request)
         else:
             return super().validate(request)
@@ -69,7 +69,7 @@ class UserDataHandler(AbstractHandler):
         return len(''.join([data["comments"] for data in value["time_entries"]]))
 
     def validate(self, request: Any):
-        if type(request) == dict:
+        if (type(request) == dict) and ("time_entries" in request):
             return dict(hours=UserDataHandler.get_hours(request),
                         comments=UserDataHandler.get_comments(request))
         else:
