@@ -21,7 +21,7 @@ class Puller:
         return result
 
     async def worker(self, group_id, start_date, end_date):
-        result = await self.get_redmine_group(group_id)
+        result = await self.rm_client.get_redmine_group(group_id)
         if isinstance(result, RMGroup):
-            result = await self.get_user_info(result, start_date, end_date)
+            result = await self.rm_client.get_redmine_group_users_info(result, start_date, end_date)
         await self.queue.put(result)
