@@ -4,6 +4,7 @@ from typing import Any
 from aiohttp.client_exceptions import ClientResponseError, ClientConnectorError
 from source.data_classes.rm_group import RMGroup
 from source.data_classes.rm_user import RMUser
+from source.data_classes.error import Error
 
 
 class Handler(ABC):
@@ -30,14 +31,19 @@ class AbstractHandler(Handler):
         return request
 
 
+class GroupHandler(AbstractHandler):
+    def validate(self, request):
+        pass
+
+
 class RequestErrorHandler(AbstractHandler):
     async def validate(self, request: Any):
         try:
             response = await request()
         except ClientConnectorError as c_c_e:
-            return str(c_c_e)
+            return Error.create_unaddressed(str(c_c_e))
         except ClientResponseError as c_r_e:
-            return f"Resource {c_r_e.message.lower()}."
+            return Error.create_unaddressed(f"Resource {c_r_e.message.lower()}.")
         else:
             return super().validate(response)
 
