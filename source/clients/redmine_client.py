@@ -15,14 +15,13 @@ class RedmineClient:
         self.request_error_handler = RequestErrorHandler()
         self.group_data_handler = GroupDataHandler()
         self.user_data_handler = UserDataHandler()
+        self.request_error_handler.set_next(self.group_data_handler).set_next(self.user_data_handler)
 
     async def get_redmine_group(self, group_id):
-        self.request_error_handler.set_next(self.group_data_handler)
         query = self._get_redmine_group_query(group_id=group_id, include="users")
         return await self.request_error_handler.validate(lambda: self.new_session_request(query))
 
     async def get_redmine_user(self, user_id, start_date, end_date):
-        self.request_error_handler.set_next(self.user_data_handler)
         query = self._get_redmine_user_query(user_id=user_id, from_date=start_date, to_date=end_date)
         return await self.request_error_handler.validate(lambda: self.new_session_request(query))
 
