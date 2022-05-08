@@ -56,11 +56,11 @@ class RMUser:
             self.comments = data
 
     def _short_name(self):
-        surname, first_name, second_name = self._name.split(" ")
+        surname, first_name, second_name = self._name.split()
         return f"{surname} {first_name[0]}.{second_name[0]}."
 
     def __repr__(self):
         return f"\n {self._name} (id: {self._id}, hours: {self._hours}, comments: {self._comments})"
 
     def __str__(self):
-        return f"{self._name} часы: {self._hours}, коментарии: {self._comments} \n"
+        return f"{self._short_name()} часы: {self._hours}, коментарии: {self._comments} \n"
