@@ -5,23 +5,21 @@ from source.data_classes.rm_group import RMGroup
 
 
 class Puller:
-    def __init__(self, url, token, pull_queue: asyncio.Queue):
-        self.url = url
-        self.token = token
+    def __init__(self, pull_queue: asyncio.Queue):
         self.queue = pull_queue
-        self.rm_client = RedmineClient(url, token)
+        self.rm_client = RedmineClient()
         self.request_error_handler = RequestErrorHandler()
 
-    async def get_redmine_group(self, group_id):
-        result = await self.rm_client.get_redmine_group(group_id)
-        return result
+    async def get_redmine_group_users_info(self, group, start_date, end_date):
+        group_with_time_sheets = group
+        for user in group_with_time_sheets.users:
+            data = await self.rm_client.get_redmine_user(user.id, start_date, end_date)
+            user.set_time_sheets(data)
+        return group_with_time_sheets
 
-    async def get_user_info(self, group, start_date, end_date):
-        result = await self.rm_client.get_redmine_group_users_info(group, start_date, end_date)
-        return result
-
-    async def worker(self, group_id, start_date, end_date):
-        result = await self.rm_client.get_redmine_group(group_id)
-        if isinstance(result, RMGroup):
-            result = await self.rm_client.get_redmine_group_users_info(result, start_date, end_date)
-        await self.queue.put(result)
+    async def worker(self, group_id, chat_id, start_date, end_date):
+        group = await self.rm_client.get_redmine_group(group_id)
+        group.chat_id = chat_id
+        if isinstance(group, RMGroup):
+            group = await self.get_redmine_group_users_info(group, start_date, end_date)
+        await self.queue.put(group)
