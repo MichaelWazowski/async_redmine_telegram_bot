@@ -1,4 +1,3 @@
-import asyncio
 from source.clients.http_client import HTTPClient
 from source.handlers.request_handler import RequestErrorHandler, GroupDataHandler, UserDataHandler
 
@@ -6,12 +5,9 @@ from source.handlers.request_handler import RequestErrorHandler, GroupDataHandle
 class RedmineClient:
 
     @staticmethod
-    async def new_session_request(work_queue):
+    async def new_session_request(query):
         new_session = HTTPClient()
-        # tasks = [new_session.make_request(work_queue) for task in
-        #          range(work_queue.qsize() if work_queue.qsize() < 2 else 2)]
-        tasks = [new_session.make_request(work_queue)]
-        return await asyncio.gather(*tasks)
+        return await new_session.make_request(query)
 
     def __init__(self, url: str, token: str):
         self.__url = url
@@ -21,27 +17,21 @@ class RedmineClient:
         self.user_data_handler = UserDataHandler()
 
     async def get_redmine_group(self, group_id):
-        work_queue = asyncio.Queue()
         self.request_error_handler.set_next(self.group_data_handler)
         query = self._get_redmine_group_query(group_id=group_id, include="users")
-        await work_queue.put(dict(url=query, id=group_id))
-        return await self.request_error_handler.validate(lambda: self.new_session_request(work_queue))
+        return await self.request_error_handler.validate(lambda: self.new_session_request(query))
 
     async def get_redmine_user(self, user_id, start_date, end_date):
+        self.request_error_handler.set_next(self.user_data_handler)
         query = self._get_redmine_user_query(user_id=user_id, from_date=start_date, to_date=end_date)
-        result = await self.new_session_request(query)
-        return self.user_data_handler.validate(result)
+        return await self.request_error_handler.validate(lambda: self.new_session_request(query))
 
     async def get_redmine_group_users_info(self, group, start_date, end_date):
-        work_queue = asyncio.Queue()
-        self.request_error_handler.set_next(None)
         group_with_time_sheets = group
         for user in group_with_time_sheets.users:
-            await work_queue.put(
-                dict(url=self._get_redmine_user_query(user_id=user.id, from_date=start_date, to_date=end_date),
-                     id=user.id))
-        data = await self.request_error_handler.validate(lambda: self.new_session_request(work_queue))
-        return data
+            data = await self.get_redmine_user(user.id, start_date, end_date)
+            user.set_time_sheets(data)
+        return group_with_time_sheets
 
     def _get_redmine_group_query(self, group_id, include=None):
         return "{url}/groups/{group_id}.json?{include}&key={key}".format(
