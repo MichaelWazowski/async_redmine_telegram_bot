@@ -45,17 +45,15 @@ class RequestErrorHandler(AbstractHandler):
 class GroupDataHandler(AbstractHandler):
     @staticmethod
     def create_group(response: dict):
-        response = response[0]
-        for key, value in response.items():
-            group_data = value.get("group")
-            group = RMGroup.create_empty(group_data["id"], group_data["name"])
-            for user in group_data["users"]:
-                new_user = RMUser.create(**user)
-                group.add_users(new_user)
-            return group
+        group_data = response.get("group")
+        group = RMGroup.create_empty(group_data["id"], group_data["name"])
+        for user in group_data["users"]:
+            new_user = RMUser.create(**user)
+            group.add_users(new_user)
+        return group
 
     def validate(self, request: Any):
-        if type(request) == list:
+        if type(request) == dict:
             return self.create_group(request)
         else:
             return super().validate(request)
