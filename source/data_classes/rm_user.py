@@ -63,13 +63,4 @@ class RMUser:
         return f"\n {self._name} (id: {self._id}, hours: {self._hours}, comments: {self._comments})"
 
     def __str__(self):
-        return format(self)
-
-    def __format__(self, format_spec):
-        component_format_spec = ".1f"
-        prefix, dot, suffix = format_spec.partition(".")
-        if dot:
-            num_decimal_places = int(suffix)
-            component_format_spec = f".{num_decimal_places}f"
-        hours = format(abs(self.hours), component_format_spec)
-        return f"{self._short_name()} часы: {hours}, коментарии: {self.comments} \n"
+        return f"{self._name} часы: {self._hours}, коментарии: {self._comments} \n"
