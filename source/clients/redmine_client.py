@@ -20,11 +20,11 @@ class RedmineClient:
 
     async def get_redmine_group(self, group_id):
         query = self._get_redmine_group_query(group_id=group_id, include="users")
-        return await self.request_error_handler.validate(lambda: self.new_session_request(query))
+        return await self.request_error_handler.handle(lambda: self.new_session_request(query))
 
-    async def get_redmine_user(self, user_id, start_date, end_date):
+    async def get_redmine_user_data(self, user_id, start_date, end_date):
         query = self._get_redmine_user_query(user_id=user_id, from_date=start_date, to_date=end_date)
-        return await self.request_error_handler.validate(lambda: self.new_session_request(query))
+        return await self.request_error_handler.handle(lambda: self.new_session_request(query))
 
     def _get_redmine_group_query(self, group_id, include=None):
         return "{url}/groups/{group_id}.json?{include}&key={key}".format(
