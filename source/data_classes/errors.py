@@ -1,9 +1,9 @@
-class Error:
+class RequestError(Exception):
     @classmethod
-    def create_unaddressed(cls, message):
-        return cls(chat_id=None, message=message)
+    def create_unaddressed(cls, message: str):
+        return cls(chat_id=str(), message=message)
 
-    def __init__(self, chat_id, message):
+    def __init__(self, chat_id: str, message: str):
         self.chat_id = chat_id
         self.message = message
 
@@ -13,9 +13,6 @@ class Error:
 
     @chat_id.setter
     def chat_id(self, value):
-        self._chat_id_setter(value)
-
-    def _chat_id_setter(self, value):
         self._chat_id = value
 
     @property
@@ -28,3 +25,11 @@ class Error:
 
     def _message_setter(self, value):
         self._message = value
+
+    def __str__(self):
+        return self._message
+
+
+class TimeFormatError(Exception):
+    def __init__(self):
+        self.message = "Time format is invalid, should be [hh.mm]."
