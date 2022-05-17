@@ -4,7 +4,7 @@ from typing import Any
 from aiohttp.client_exceptions import ClientResponseError, ClientConnectorError
 from source.data_classes.rm_group import RMGroup
 from source.data_classes.rm_user import RMUser
-from source.data_classes.error import Error
+from source.data_classes.errors import RequestError
 
 
 class Handler(ABC):
@@ -13,7 +13,7 @@ class Handler(ABC):
         pass
 
     @abstractmethod
-    def validate(self, request):
+    def handle(self, request):
         pass
 
 
@@ -25,58 +25,62 @@ class AbstractHandler(Handler):
         return handler
 
     @abstractmethod
-    def validate(self, request: Any):
+    def handle(self, request: Any):
         if self._next_handler:
-            return self._next_handler.validate(request)
+            return self._next_handler.handle(request)
         return request
 
 
 class GroupHandler(AbstractHandler):
-    def validate(self, request):
+    def handle(self, request):
         pass
 
 
 class RequestErrorHandler(AbstractHandler):
-    async def validate(self, request: Any):
+    async def handle(self, request: Any):
         try:
             response = await request()
         except ClientConnectorError as c_c_e:
-            return Error.create_unaddressed(str(c_c_e))
+            raise RequestError.create_unaddressed(str(c_c_e))
         except ClientResponseError as c_r_e:
-            return Error.create_unaddressed(f"Resource {c_r_e.message.lower()}.")
+            raise RequestError.create_unaddressed(f"Resource {c_r_e.message.lower()}.")
         else:
-            return super().validate(response)
+            return super().handle(response)
 
 
 class GroupDataHandler(AbstractHandler):
     @staticmethod
-    def create_group(response: dict):
-        group_data = response.get("group")
-        group = RMGroup.create_empty(group_data["id"], group_data["name"])
-        for user in group_data["users"]:
-            new_user = RMUser.create(**user)
-            group.add_users(new_user)
-        return group
+    def is_valid(data: dict, key) -> bool:
+        return key in data
 
-    def validate(self, request: Any):
-        if (type(request) == dict) and ("group" in request):
-            return self.create_group(request)
+    @staticmethod
+    def create_group(data: dict):
+        users = [RMUser.create(**user) for user in data["users"]]
+        return RMGroup.create_with_users(data["id"], data["name"], users)
+
+    def handle(self, data: Any):
+        if self.is_valid(data, "group"):
+            return self.create_group(data.get("group"))
         else:
-            return super().validate(request)
+            return super().handle(data)
 
 
 class UserDataHandler(AbstractHandler):
     @staticmethod
-    def get_hours(value):
-        return sum([data["hours"] for data in value["time_entries"]])
+    def is_valid(data: dict, key) -> bool:
+        return key in data
 
     @staticmethod
-    def get_comments(value):
-        return len(''.join([data["comments"] for data in value["time_entries"]]))
+    def get_hours(data: dict):
+        return sum([values["hours"] for values in data["time_entries"]])
 
-    def validate(self, request: Any):
-        if (type(request) == dict) and ("time_entries" in request):
-            return dict(hours=UserDataHandler.get_hours(request),
-                        comments=UserDataHandler.get_comments(request))
+    @staticmethod
+    def get_comments(data: dict):
+        return len(''.join([values["comments"] for values in data["time_entries"]]))
+
+    def handle(self, data: Any):
+        if self.is_valid(data, "time_entries"):
+            return dict(hours=self.get_hours(data),
+                        comments=self.get_comments(data))
         else:
-            return super().validate(request)
+            return super().handle(data)
